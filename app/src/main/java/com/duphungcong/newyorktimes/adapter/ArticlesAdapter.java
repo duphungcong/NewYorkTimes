@@ -5,10 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.duphungcong.newyorktimes.R;
 import com.duphungcong.newyorktimes.model.Article;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -31,12 +33,14 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     // Used to cache the views within the item layout for fast access
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView tvTitle;
+        public TextView tvHeadline;
+        public ImageView ivThumbnail;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            tvHeadline = (TextView) itemView.findViewById(R.id.tvHeadline);
+            ivThumbnail = (ImageView) itemView.findViewById(R.id.ivThumbnail);
         }
     }
 
@@ -45,7 +49,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
     @Override
     public ArticlesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        mContext = parent.getContext();
 
         View articleView = LayoutInflater.from(getmContext()).inflate(R.layout.article_item, parent, false);
 
@@ -58,8 +62,20 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     public void onBindViewHolder(ArticlesAdapter.ViewHolder holder, int position) {
         Article article = mArticles.get(position);
 
-        TextView tvTitle = holder.tvTitle;
-        tvTitle.setText(article.getSnippet());
+        TextView tvHeadline = holder.tvHeadline;
+        ImageView ivThumbnail = holder.ivThumbnail;
+
+        tvHeadline.setText(article.getHeadline().getMain());
+        String thumbnailUrl = article.getThumbnalUrl();
+        if (thumbnailUrl.equals("url not found")) {
+            ivThumbnail.setVisibility(View.INVISIBLE);
+        } else {
+            Picasso.with(mContext)
+                    .load(article.getThumbnalUrl())
+                    .placeholder(R.drawable.image_loading)
+                    .error(R.drawable.image_loading)
+                    .into(ivThumbnail);
+        }
     }
 
     @Override

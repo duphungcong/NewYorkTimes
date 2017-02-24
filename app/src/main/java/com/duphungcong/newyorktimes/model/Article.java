@@ -1,34 +1,63 @@
 package com.duphungcong.newyorktimes.model;
 
+import com.duphungcong.newyorktimes.common.Constant;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 /**
  * Created by udcun on 2/22/2017.
  */
 
 public class Article {
-    @SerializedName("snippet")
-    private String snippet;
+    @SerializedName("multimedia")
+    private List<Multimedia> multimedia;
 
-    private String mTitle;
+    @SerializedName("headline")
+    private Headline headline;
 
-    public Article(String mTitle) {
-        this.mTitle = mTitle;
+    public Headline getHeadline() {
+        return this.headline;
     }
 
-    public String getmTitle() {
-        return mTitle;
+    public List<Multimedia> getMultimedia() {
+        return multimedia;
     }
 
-    public void setmTitle(String mTitle) {
-        this.mTitle = mTitle;
+    public String getThumbnalUrl() {
+        int arraySize = this.multimedia.size();
+        for (int i = 0; i < arraySize; i++) {
+            Multimedia multimedia = this.multimedia.get(i);
+            if (multimedia.getSubtype().equals("thumbnail")) {
+                return Constant.NYT_IMAGE_BASE_URL + multimedia.getUrl();
+            }
+        }
+
+        return "url not found";
     }
 
-    public String getSnippet() {
-        return snippet;
+    public static class Headline {
+        @SerializedName("main")
+        private String main;
+
+        public String getMain() {
+            return main;
+        }
     }
 
-    public void setSnippet(String snippet) {
-        this.snippet = snippet;
+    public static class Multimedia {
+        @SerializedName("url")
+        private String url;
+
+        @SerializedName("subtype")
+        private String subtype;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public String getSubtype() {
+            return subtype;
+        }
     }
 }

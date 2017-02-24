@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void fetchArticles(String query) {
         NYTService service = NYTClient.getService().create(NYTService.class);
-        Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY, null);
+        Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY, query);
         call.enqueue(new Callback<NYTResponse>() {
             @Override
             public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {

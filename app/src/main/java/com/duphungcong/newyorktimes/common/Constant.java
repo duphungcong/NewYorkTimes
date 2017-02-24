@@ -7,4 +7,5 @@ package com.duphungcong.newyorktimes.common;
 public class Constant {
     public static String API_KEY = "d04e5d5c45534d3496b2ea5d73278c08";
     public static String NYT_BASE_URL = "https://api.nytimes.com/svc/search/v2/";
+    public static String NYT_IMAGE_BASE_URL = "https://static01.nyt.com/";
 }
