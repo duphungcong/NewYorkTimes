@@ -71,6 +71,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         } else {
             Picasso.with(mContext)
                     .load(article.getThumbnalUrl())
+                    .fit()
                     .placeholder(R.drawable.image_loading)
                     .error(R.drawable.image_loading)
                     .into(ivThumbnail);

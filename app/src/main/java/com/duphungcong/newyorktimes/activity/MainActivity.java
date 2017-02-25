@@ -1,10 +1,11 @@
 package com.duphungcong.newyorktimes.activity;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +18,9 @@ import com.duphungcong.newyorktimes.api.NYTClient;
 import com.duphungcong.newyorktimes.api.NYTResponse;
 import com.duphungcong.newyorktimes.api.NYTService;
 import com.duphungcong.newyorktimes.common.Constant;
+import com.duphungcong.newyorktimes.fragment.FilterFragment;
 import com.duphungcong.newyorktimes.model.Article;
+import com.duphungcong.newyorktimes.model.ArticleFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +29,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FilterFragment.SaveFilterListener {
     private RecyclerView rvArticles;
     private List<Article> articles;
     private ArticlesAdapter articlesAdapter;
+
+    private ArticleFilter articleFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +50,15 @@ public class MainActivity extends AppCompatActivity {
 
         rvArticles.setAdapter(articlesAdapter);
 
-        rvArticles.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        rvArticles.setLayoutManager(gridLayoutManager);
 
-        fetchArticles(null);
+        articleFilter = new ArticleFilter();
+
+        fetchArticles(null, articleFilter);
     }
 
-    public void fetchArticles(String query) {
+    public void fetchArticles(String query, ArticleFilter filter) {
         NYTService service = NYTClient.getService().create(NYTService.class);
         Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY, query);
         call.enqueue(new Callback<NYTResponse>() {
@@ -71,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.menu_main, menu);
         MenuItem item = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) item.getActionView();
 
@@ -79,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
-                fetchArticles(query);
+                fetchArticles(query, articleFilter);
 
                 searchView.clearFocus();
                 return true;
@@ -92,5 +100,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_filter) {
+            showFilterDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void showFilterDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        FilterFragment fragment = FilterFragment.newInstance(articleFilter);
+        fragment.show(fm, "fragment_filter");
+    }
+
+    @Override
+    public void onSaveFilter(ArticleFilter filter) {
+        articleFilter = filter;
+        Toast.makeText(MainActivity.this, filter.getSort(), Toast.LENGTH_SHORT).show();
     }
 }
