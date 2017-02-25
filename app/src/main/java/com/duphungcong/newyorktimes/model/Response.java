@@ -1,5 +1,7 @@
 package com.duphungcong.newyorktimes.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -7,6 +9,7 @@ import java.util.List;
  */
 
 public class Response {
+    @SerializedName("docs")
     private List<Article> docs;
 
     public List<Article> getDocs() {

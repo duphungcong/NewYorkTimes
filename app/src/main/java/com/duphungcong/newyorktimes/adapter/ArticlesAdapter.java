@@ -19,6 +19,8 @@ import java.util.List;
  */
 
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
+    private Context mContext;
+    private List<Article> mArticles;
 
     public ArticlesAdapter(Context mContext, List<Article> mArticles) {
         this.mContext = mContext;
@@ -43,9 +45,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             ivThumbnail = (ImageView) itemView.findViewById(R.id.ivThumbnail);
         }
     }
-
-    private Context mContext;
-    private List<Article> mArticles;
 
     @Override
     public ArticlesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -81,5 +80,17 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     @Override
     public int getItemCount() {
         return mArticles.size();
+    }
+
+    public void refresh(List<Article> newArticles) {
+        if(mArticles != null) {
+            mArticles.clear();
+            mArticles.addAll(newArticles);
+        }
+        else {
+            mArticles = newArticles;
+        }
+
+        notifyDataSetChanged();
     }
 }
