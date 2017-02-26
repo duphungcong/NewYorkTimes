@@ -11,5 +11,6 @@ import retrofit2.http.Query;
 public interface NYTService {
     @GET("articlesearch.json")
     Call<NYTResponse> getArticleSearch(@Query("api-key") String apiKey,
-                                       @Query("q") String q);
+                                       @Query("q") String q,
+                                       @Query("sort") String sort);
 }

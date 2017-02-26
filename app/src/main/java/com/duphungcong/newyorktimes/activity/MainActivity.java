@@ -20,7 +20,7 @@ import com.duphungcong.newyorktimes.api.NYTService;
 import com.duphungcong.newyorktimes.common.Constant;
 import com.duphungcong.newyorktimes.fragment.FilterFragment;
 import com.duphungcong.newyorktimes.model.Article;
-import com.duphungcong.newyorktimes.model.ArticleFilter;
+import com.duphungcong.newyorktimes.viewmodel.ArticleFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements FilterFragment.SaveFilterListener {
+public class MainActivity extends AppCompatActivity implements FilterFragment.FinishFilterListener {
     private RecyclerView rvArticles;
     private List<Article> articles;
     private ArticlesAdapter articlesAdapter;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Sa
 
     public void fetchArticles(String query, ArticleFilter filter) {
         NYTService service = NYTClient.getService().create(NYTService.class);
-        Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY, query);
+        Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY, query, filter.getSort());
         call.enqueue(new Callback<NYTResponse>() {
             @Override
             public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {
@@ -116,9 +116,16 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Sa
         fragment.show(fm, "fragment_filter");
     }
 
+    // Pass new filter setting when user click save icon on toolbar
     @Override
-    public void onSaveFilter(ArticleFilter filter) {
-        articleFilter = filter;
-        Toast.makeText(MainActivity.this, filter.getSort(), Toast.LENGTH_SHORT).show();
+    public void onSaveFilter(ArticleFilter savedFilter) {
+        articleFilter = savedFilter;
+        Toast.makeText(MainActivity.this, savedFilter.getSort(), Toast.LENGTH_SHORT).show();
+    }
+
+    // Restore filter setting of previous session when user click cancel icon on toolbar
+    @Override
+    public void onCancelFilter(ArticleFilter backupFilter) {
+        articleFilter = backupFilter;
     }
 }

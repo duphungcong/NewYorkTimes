@@ -1,6 +1,7 @@
 package com.duphungcong.newyorktimes.fragment;
 
 import android.app.Dialog;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,12 +12,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import com.duphungcong.newyorktimes.R;
-import com.duphungcong.newyorktimes.model.ArticleFilter;
+import com.duphungcong.newyorktimes.databinding.FragmentFilterBinding;
+import com.duphungcong.newyorktimes.viewmodel.ArticleFilter;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by udcun on 2/26/2017.
@@ -24,12 +30,17 @@ import com.duphungcong.newyorktimes.model.ArticleFilter;
 
 public class FilterFragment extends DialogFragment {
 
-    private ArticleFilter articleFilter;
+    private FragmentFilterBinding binding;
+
+    private ArticleFilter articleFilter, backupFilter;
     private Spinner mSort;
+    private DatePicker mBeginDate;
+    private List<CheckBox> mNewsDesk;
 
     // Defines the listener interface with a method passing back data result.
-    public interface SaveFilterListener {
-        void onSaveFilter(ArticleFilter filter);
+    public interface FinishFilterListener {
+        void onSaveFilter(ArticleFilter savedFilter);
+        void onCancelFilter(ArticleFilter backupFilter);
     }
 
     public FilterFragment() {
@@ -51,9 +62,12 @@ public class FilterFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_filter, container);
 
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.search_setting_toolbar);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_filter, container, false);
+        View view = binding.getRoot();
+
+        //Toolbar toolbar = (Toolbar) view.findViewById(R.id.search_setting_toolbar);
+        Toolbar toolbar = binding.searchSettingToolbar;
         toolbar.setTitle(getString(R.string.filter_dialog_title));
 
         toolbar.inflateMenu(R.menu.menu_search_setting);
@@ -81,15 +95,10 @@ public class FilterFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         articleFilter = (ArticleFilter) getArguments().getSerializable("filter");
+        // Backup filter in case of canceling
+        backupFilter = new ArticleFilter(articleFilter);
 
-        mSort = (Spinner) view.findViewById(R.id.spSort);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.sort_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        mSort.setAdapter(adapter);
-        setSpinnerToValue(mSort, articleFilter.getSort());
+        binding.setArticleFilter(articleFilter);
 
     }
 
@@ -103,34 +112,40 @@ public class FilterFragment extends DialogFragment {
         return dialog;
     }
 
+    // Restore filter setting of previous session when user click cancel icon on toolbar
     public void cancelFilter() {
+        // Restore filter setting of previous session
+        FinishFilterListener listener = (FinishFilterListener) getActivity();
+
+        listener.onCancelFilter(backupFilter);
+
         dismiss();
     }
 
+    // Pass new filter setting when user click save icon on toolbar
     public void saveFilter() {
-        SaveFilterListener listener = (SaveFilterListener) getActivity();
+        FinishFilterListener listener = (FinishFilterListener) getActivity();
 
-        articleFilter = new ArticleFilter();
-
-        articleFilter.setSort(mSort.getSelectedItem().toString());
+        //articleFilter.setBeginDate(getValueFromDatePicker(mBeginDate));
 
         listener.onSaveFilter(articleFilter);
 
         dismiss();
     }
 
-    // Set spinner to value
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        SpinnerAdapter adapter = spinner.getAdapter();
+    public Date getValueFromDatePicker(DatePicker datePicker) {
+        Calendar c = Calendar.getInstance();
 
-        for (int i = 0; i < adapter.getCount(); i ++) {
-            if (adapter.getItem(i).equals(articleFilter.getSort())) {
-                index = i;
-                break;
-            }
-        }
+        int year = datePicker.getYear();
+        int monnth = datePicker.getMonth();
+        int dayOfMonth = datePicker.getDayOfMonth();
 
-        spinner.setSelection(index);
+        c.set(year, monnth, dayOfMonth);
+
+        return c.getTime();
+    }
+
+    public String getValueFromCheckBoxGroup() {
+        return null;
     }
 }
