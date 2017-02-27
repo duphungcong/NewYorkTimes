@@ -15,7 +15,7 @@ import android.widget.Spinner;
 public class BindingUlti {
 
     @BindingAdapter(value = {"bind:selectedValue", "bind:selectedValueAttrChanged"}, requireAll = false)
-    public static void bindSpinnerData(Spinner spinner, String newSelectedValue, final InverseBindingListener newValueAttrChanged) {
+    public static void bindSpinner(Spinner spinner, String newSelectedValue, final InverseBindingListener newValueAttrChanged) {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -34,4 +34,27 @@ public class BindingUlti {
     public static String captureSelectedValue(Spinner spinner) {
         return (String) spinner.getSelectedItem();
     }
+
+   /* @BindingAdapter(value = {"bind:selectedValue", "bind:selectedValueAttrChange"}, requireAll = false)
+    public static void bindDatePickerData(DatePicker datePicker, Date newSelectedValue, final InverseBindingListener newValueAttrChanged) {
+        datePicker.init(datePicker.getYear(),
+                        datePicker.getMonth(),
+                        datePicker.getDayOfMonth(),
+                        new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                newValueAttrChanged.onChange();
+            }
+        });
+    }
+    @InverseBindingAdapter(attribute = "bind:selectedValue", event = "bind:selectedValueAttrChanged")
+    public static Date captureSelectedValue(DatePicker datePicker) {
+        Calendar c= Calendar.getInstance();
+        int year = datePicker.getYear();
+        int month = datePicker.getMonth();
+        int dayOfMonth = datePicker.getDayOfMonth();
+        c.set(year, month, dayOfMonth);
+
+        return c.getTime();
+    }*/
 }

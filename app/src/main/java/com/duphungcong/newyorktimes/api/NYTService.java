@@ -12,5 +12,8 @@ public interface NYTService {
     @GET("articlesearch.json")
     Call<NYTResponse> getArticleSearch(@Query("api-key") String apiKey,
                                        @Query("q") String q,
-                                       @Query("sort") String sort);
+                                       @Query("sort") String sort,
+                                       @Query("fq") String fq,
+                                       @Query("begin_date") String beginDate,
+                                       @Query("page") int page);
 }

@@ -1,5 +1,9 @@
 package com.duphungcong.newyorktimes.viewmodel;
 
+import android.widget.CheckBox;
+
+import com.duphungcong.newyorktimes.ulti.DateUlti;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +15,7 @@ import java.util.List;
 public class ArticleFilter implements Serializable {
     private String sort;
     private Date beginDate;
-    private List<String> newsDesk;
+    private List<CheckBox> newsDeskList;
 
     public ArticleFilter() {
     }
@@ -36,11 +40,30 @@ public class ArticleFilter implements Serializable {
         this.beginDate = beginDate;
     }
 
-    public List<String> getNewsDesk() {
-        return newsDesk;
+    public List<CheckBox> getNewsDeskList() {
+        return newsDeskList;
     }
 
-    public void setNewsDesk(List<String> newsDesk) {
-        this.newsDesk = newsDesk;
+    public void setNewsDeskList(List<CheckBox> newsDeskList) {
+        this.newsDeskList = newsDeskList;
+    }
+
+    public String getNewsDeskQuery() {
+        if (newsDeskList != null && newsDeskList.size() != 0) {
+            String query = "news_desk:(";
+            for (int i = 0; i < newsDeskList.size(); i++) {
+                query = query + newsDeskList.get(i).getText().toString() + " ";
+            }
+
+            query = query + ")";
+
+            return query;
+        } else {
+            return null;
+        }
+    }
+
+    public String getBeginDateQuery() {
+        return DateUlti.dateFormat(beginDate);
     }
 }

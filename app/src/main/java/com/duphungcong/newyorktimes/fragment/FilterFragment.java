@@ -18,10 +18,10 @@ import android.widget.Spinner;
 
 import com.duphungcong.newyorktimes.R;
 import com.duphungcong.newyorktimes.databinding.FragmentFilterBinding;
+import com.duphungcong.newyorktimes.ulti.DateUlti;
 import com.duphungcong.newyorktimes.viewmodel.ArticleFilter;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -126,26 +126,28 @@ public class FilterFragment extends DialogFragment {
     public void saveFilter() {
         FinishFilterListener listener = (FinishFilterListener) getActivity();
 
-        //articleFilter.setBeginDate(getValueFromDatePicker(mBeginDate));
+        articleFilter.setBeginDate(DateUlti.getDatePickerValue(binding.dpBeginDate));
+        getCheckedCheckBoxes();
+        articleFilter.setNewsDeskList(mNewsDesk);
 
         listener.onSaveFilter(articleFilter);
 
         dismiss();
     }
 
-    public Date getValueFromDatePicker(DatePicker datePicker) {
-        Calendar c = Calendar.getInstance();
+    public void getCheckedCheckBoxes() {
+        mNewsDesk = new ArrayList<>();
 
-        int year = datePicker.getYear();
-        int monnth = datePicker.getMonth();
-        int dayOfMonth = datePicker.getDayOfMonth();
+        if (binding.cbArts.isChecked()) {
+            mNewsDesk.add(binding.cbArts);
+        }
 
-        c.set(year, monnth, dayOfMonth);
+        if (binding.cbFashion.isChecked()) {
+            mNewsDesk.add(binding.cbFashion);
+        }
 
-        return c.getTime();
-    }
-
-    public String getValueFromCheckBoxGroup() {
-        return null;
+        if (binding.cbSports.isChecked()) {
+            mNewsDesk.add(binding.cbSports);
+        }
     }
 }
