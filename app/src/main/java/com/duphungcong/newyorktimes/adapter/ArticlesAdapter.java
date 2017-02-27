@@ -27,6 +27,16 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         this.mArticles = mArticles;
     }
 
+    private static OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public Context getmContext() {
         return mContext;
     }
@@ -38,11 +48,20 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         public TextView tvHeadline;
         public ImageView ivThumbnail;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(final View itemView) {
             super(itemView);
 
             tvHeadline = (TextView) itemView.findViewById(R.id.tvHeadline);
             ivThumbnail = (ImageView) itemView.findViewById(R.id.ivThumbnail);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onItemClick(itemView, getLayoutPosition());
+                    }
+                }
+            });
         }
     }
 
@@ -50,9 +69,9 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     public ArticlesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mContext = parent.getContext();
 
-        View articleView = LayoutInflater.from(getmContext()).inflate(R.layout.article_item, parent, false);
+        final View articleView = LayoutInflater.from(getmContext()).inflate(R.layout.article_item, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(articleView);
+        final ViewHolder viewHolder = new ViewHolder(articleView);
 
         return viewHolder;
     }

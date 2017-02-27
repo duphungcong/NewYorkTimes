@@ -10,6 +10,9 @@ import java.util.List;
  */
 
 public class Article {
+    @SerializedName("web_url")
+    private String webUrl;
+
     @SerializedName("multimedia")
     private List<Multimedia> multimedia;
 
@@ -34,6 +37,14 @@ public class Article {
         }
 
         return "url not found";
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 
     public static class Headline {

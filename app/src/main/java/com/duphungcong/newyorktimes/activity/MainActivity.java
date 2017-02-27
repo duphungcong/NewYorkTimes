@@ -1,16 +1,19 @@
 package com.duphungcong.newyorktimes.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
 import com.duphungcong.newyorktimes.R;
 import com.duphungcong.newyorktimes.adapter.ArticlesAdapter;
@@ -55,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         articlesAdapter = new ArticlesAdapter(MainActivity.this, articles);
 
         rvArticles.setAdapter(articlesAdapter);
-
-        StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         rvArticles.setLayoutManager(gridLayoutManager);
 
         fetchArticles(currentQuery, articleFilter, currentPage);
@@ -70,6 +72,18 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         };
         // Add the scroll listener to RecyclerView
         rvArticles.addOnScrollListener(scrollListener);
+
+        articlesAdapter.setOnItemClickListener(new ArticlesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Article article = articles.get(position);
+                Uri uri = Uri.parse(article.getWebUrl());
+                Intent intent = new Intent(getApplicationContext(), ArticleDetailActivity.class);
+                intent.putExtra("uri", uri);
+                startActivity(intent);
+
+            }
+        });
     }
 
     public void fetchArticles(String query, ArticleFilter filter, int page) {
@@ -83,13 +97,17 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         call.enqueue(new Callback<NYTResponse>() {
             @Override
             public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {
-                List<Article> newArticles = response.body().getResponse().getDocs();
-                articlesAdapter.updateList(newArticles);
+                if(response.isSuccessful()) {
+                    Log.v("MSG", response.body().toString());
+                    List<Article> newArticles = response.body().getResponse().getDocs();
+                    articlesAdapter.updateList(newArticles);
+                }
             }
 
             @Override
             public void onFailure(Call<NYTResponse> call, Throwable t) {
                 // Invalid JSON format, show appropriate error.
+                Log.v("MSG", "NOT RESPONSE");
                 t.printStackTrace();
             }
         });
@@ -140,7 +158,10 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
     @Override
     public void onSaveFilter(ArticleFilter savedFilter) {
         articleFilter = savedFilter;
-        Toast.makeText(MainActivity.this, savedFilter.getSort(), Toast.LENGTH_SHORT).show();
+        articlesAdapter.clearList();
+        scrollListener.resetState();
+        currentPage = 0;
+        fetchArticles(currentQuery, articleFilter, currentPage);
     }
 
     // Restore filter setting of previous session when user click cancel icon on toolbar
