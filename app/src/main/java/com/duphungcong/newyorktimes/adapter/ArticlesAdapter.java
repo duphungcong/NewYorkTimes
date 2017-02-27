@@ -83,15 +83,21 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         return mArticles.size();
     }
 
-    public void refresh(List<Article> newArticles) {
+    public void updateList(List<Article> newArticles) {
         if (mArticles != null) {
-            //mArticles.clear();
             mArticles.addAll(newArticles);
         }
         else {
             mArticles = newArticles;
         }
 
+        notifyDataSetChanged();
+    }
+
+    public void clearList() {
+        if(mArticles != null) {
+            mArticles.clear();
+        }
         notifyDataSetChanged();
     }
 }

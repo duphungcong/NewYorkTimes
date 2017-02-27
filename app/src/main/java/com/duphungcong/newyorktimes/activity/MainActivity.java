@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
             @Override
             public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {
                 List<Article> newArticles = response.body().getResponse().getDocs();
-                articlesAdapter.refresh(newArticles);
+                articlesAdapter.updateList(newArticles);
             }
 
             @Override
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
             @Override
             public boolean onQueryTextSubmit(String query) {
                 currentQuery = query;
-                Toast.makeText(MainActivity.this, currentQuery, Toast.LENGTH_SHORT).show();
+                articlesAdapter.clearList();
                 fetchArticles(currentQuery, articleFilter, currentPage);
 
                 searchView.clearFocus();
