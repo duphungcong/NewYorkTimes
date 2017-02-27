@@ -1,6 +1,5 @@
 package com.duphungcong.newyorktimes.activity;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -24,11 +23,11 @@ import com.duphungcong.newyorktimes.fragment.FilterFragment;
 import com.duphungcong.newyorktimes.model.Article;
 import com.duphungcong.newyorktimes.viewmodel.ArticleFilter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements FilterFragment.FinishFilterListener {
@@ -73,36 +72,27 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         rvArticles.addOnScrollListener(scrollListener);
     }
 
-    private class FetchArticlesTask extends AsyncTask<Call, Void, List<Article>> {
-
-        @Override
-        protected List<Article> doInBackground(Call... params) {
-            try {
-                Call<NYTResponse> call = params[0];
-                Response<NYTResponse> response = call.execute();
-                return response.body().getResponse().getDocs();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Article> articles) {
-            articlesAdapter.refresh(articles);
-        }
-    }
-
     public void fetchArticles(String query, ArticleFilter filter, int page) {
         NYTService service = NYTClient.getService().create(NYTService.class);
-        final Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY,       // api-key
+        Call<NYTResponse> call = service.getArticleSearch(Constant.API_KEY,             // api-key
                                                             query,                      // search text
                                                             filter.getSort(),           // sort filter
                                                             filter.getNewsDeskQuery(),  // news_desk filter
                                                             filter.getBeginDateQuery(), // begin_date filter
                                                             page);                      // pagination
-        new FetchArticlesTask().execute(call);
+        call.enqueue(new Callback<NYTResponse>() {
+            @Override
+            public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {
+                List<Article> newArticles = response.body().getResponse().getDocs();
+                articlesAdapter.refresh(newArticles);
+            }
+
+            @Override
+            public void onFailure(Call<NYTResponse> call, Throwable t) {
+                // Invalid JSON format, show appropriate error.
+                t.printStackTrace();
+            }
+        });
     }
 
     @Override
