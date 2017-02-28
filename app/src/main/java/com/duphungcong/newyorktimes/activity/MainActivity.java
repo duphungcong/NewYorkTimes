@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.duphungcong.newyorktimes.R;
 import com.duphungcong.newyorktimes.adapter.ArticlesAdapter;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         rvArticles.setLayoutManager(gridLayoutManager);
 
-        fetchArticles(currentQuery, articleFilter, currentPage);
+        //fetchArticles(currentQuery, articleFilter, currentPage);
 
         scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
@@ -72,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
         };
         // Add the scroll listener to RecyclerView
         rvArticles.addOnScrollListener(scrollListener);
+
+        scrollListener.resetState();
+        fetchArticles(currentQuery, articleFilter, currentPage);
 
         articlesAdapter.setOnItemClickListener(new ArticlesAdapter.OnItemClickListener() {
             @Override
@@ -98,9 +102,18 @@ public class MainActivity extends AppCompatActivity implements FilterFragment.Fi
             @Override
             public void onResponse(Call<NYTResponse> call, Response<NYTResponse> response) {
                 if(response.isSuccessful()) {
-                    Log.v("MSG", response.body().toString());
                     List<Article> newArticles = response.body().getResponse().getDocs();
                     articlesAdapter.updateList(newArticles);
+                    Log.v("MSG", "NUMBER OF PAGES LOADED: " + currentPage);
+                }
+                // Current API of New York Times limits loaded page at 120 pages.
+                // Fix max current page = 120. Not good but it works
+                else if ( currentPage <= 120 ) {
+                    Log.v("MSG", "ON RESPONSE BUT NOT SUCCESS. REQUEST AGAIN");
+                    fetchArticles(currentQuery, articleFilter, currentPage);
+                } else {
+                    Log.v("MSG", "REACH TO API LIMIT");
+                    Toast.makeText(MainActivity.this, "You reach at end of list articles", Toast.LENGTH_SHORT).show();
                 }
             }
 
